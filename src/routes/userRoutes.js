@@ -1,10 +1,26 @@
-const express=require('express');
-const router=express.Router();
-const userController =require('../controllers/userController')
+const express = require('express');
+const router = express.Router();
+const {
+  registerUser,
+  loginUser,
+  getUserProfile,
+  getAllUsers,
+  updatePassword,
+  updateUserRole,
+} = require('../controllers/userController');
+const { protect, adminOnly } = require('../middlewares/authMiddleware');
 
-router.get('/', userController.getUsers);
-router.get('/:id', userController.getUserById);
-router.post('/', userController.createUser);
-router.delete('/:id', userController.DeleteUserById);
+// Public authentication routes
+router.post('/register', registerUser);
+router.post('/login', loginUser);
+
+router.put('/update-password', protect, updatePassword);
+router.put('/:id/role', protect, adminOnly, updateUserRole);
+
+// Private profile route protected by JWT
+router.get('/profile', protect, getUserProfile);
+
+// Administrator-only route (Valid JWT + admin role)
+router.get('/', protect, adminOnly, getAllUsers);
 
 module.exports = router;
